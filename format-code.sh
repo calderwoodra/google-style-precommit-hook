@@ -1,33 +1,36 @@
 #!/usr/bin/env sh
 
-pwd
-ls -a
-mkdir -p .cache
+RELEASE=1.8
+JAR_NAME="google-java-format-${RELEASE}-all-deps.jar"
+RELEASES_URL=https://github.com/google/google-java-format/releases/download
+JAR_URL="${RELEASES_URL}/google-java-format-${RELEASE}/${JAR_NAME}"
 
-pwd
-ls -a
-cd .cache
+CACHE_DIR="$HOME/.cache/google-java-format-git-pre-commit-hook"
+JAR_FILE="$CACHE_DIR/$JAR_NAME"
 
-pwd
-ls -a
-
-if [ ! -f google-java-format-1.8-all-deps.jar ]
+echo "=================================="
+echo "Running pre-commit code formatter"
+echo "=================================="
+if [[ ! -f "$JAR_FILE" ]]
 then
-    echo "curl"
-    curl -LJO "https://github.com/google/google-java-format/releases/download/google-java-format-1.8/google-java-format-1.8-all-deps.jar"
-    pwd
-    ls
-    echo "chmod"
-    chmod 755 google-java-format-1.8-all-deps.jar
-    pwd
-    ls
+    echo "Setting up google-java-format"
+    mkdir -p "$CACHE_DIR"
+    curl -L "$JAR_URL" -o "$JAR_FILE"
+
 fi
-cd ..
-
-pwd
-ls
-
-changed_java_files=$(git diff --cached --name-only --diff-filter=ACMR | grep ".*java$" )
-echo $changed_java_files
-java -jar google-java-format-1.8-all-deps.jar --replace $changed_java_files
-mv google-java-format-1.8-all-deps.jar .cache/
+changed_java_files=$(git diff --cached --name-only --diff-filter=ACMR | grep ".*java$" || true)
+if [[ -n "$changed_java_files" ]]
+then
+    echo "The following files will checked and reformatted:"
+    echo "$changed_java_files"
+    if ! java -jar "$JAR_FILE" --replace --set-exit-if-changed $changed_java_files
+    then
+        echo "\nBad dod no biscuit. Some files were reformatted!"
+    else
+        echo "All good!"
+    fi
+    git add $changed_java_files
+else
+    echo "All good!"
+fi
+echo "=================================="

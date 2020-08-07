@@ -1,6 +1,16 @@
 #!/usr/bin/env sh
+
+pwd
+ls -a
 mkdir -p .cache
+
+pwd
+ls -a
 cd .cache
+
+pwd
+ls -a
+
 if [ ! -f google-java-format-1.8-all-deps.jar ]
 then
     echo "curl"

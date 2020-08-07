@@ -29,4 +29,5 @@ ls
 
 changed_java_files=$(git diff --cached --name-only --diff-filter=ACMR | grep ".*java$" )
 echo $changed_java_files
-java -jar .cache/google-java-format-1.8-all-deps.jar --replace $changed_java_files
+java -jar google-java-format-1.8-all-deps.jar --replace $changed_java_files
+mv google-java-format-1.8-all-deps.jar .cache/
